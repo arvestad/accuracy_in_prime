@@ -1,0 +1,75 @@
+================================================================================
+GuestTreeGen is part of the JPrIME-GenPhyloData suite of tools for creating
+realistic phylogenetic data. GuestTreeGen takes a Newick "host" tree with
+ultrametric branch lengths and generates a "guest" tree evolving inside the
+host tree. This is achieved through a canonical extension of a birth-death
+process, in which guest tree lineages may be duplicated, lost, or laterally
+transferred (i.e., be split with one copy being transferred to a contemporaneous
+host edge). Guest lineages branch deterministically at host tree vertices.
+Auxiliary files detailing the process are also created by default.
+
+It is now also possible to generate gene trees over hybrid graphs. This is
+covered in more detail in the online tutorial.
+
+References:
+    In press
+
+Releases, tutorial, etc: http://code.google.com/p/jprime/wiki/GenPhyloData
+
+License: JPrIME is available under the New BSD License.
+================================================================================
+Usage:
+    java -jar jprime-X.Y.Z.jar GuestTreeGen [options] <host tree> <dup rate> <loss rate> <trans rate> <out prefix>
+Required arguments:
+     <host tree file or string> <dup rate> <loss rate> <trans rate> <out prefix>
+Options:
+-h, --help
+     Display help. Default: false.
+-q, --quiet
+     Suppress creation of auxiliary files and write only pruned tree directly to
+     stdout. Default: false.
+-s, --seed
+     PRNG seed. Default: Random seed.
+-n, --no-of-guest-trees
+     Number of guest trees to generate. Default: 1.
+-min, --min-leaves
+     Minimum number of extant guest leaves required. Default: 2.
+-max, --max-leaves
+     Maximum number of extant guest leaves allowed. Default: 64.
+-minper, --min-leaves-per-host-leaf
+     Minimum number of extant guest leaves per host leaf required. Default: 0.
+-maxper, --max-leaves-per-host-leaf
+     Maximum number of extant guest leaves per host leaf allowed. Default: 10.
+-sizes, --leaf-sizes-file
+     Samples the desired number of extant leaves uniformly from a single-column
+     file. This is suitable for mimicking a known leaf size distribution.
+     Default: No sampling.
+-nox, --no-auxiliary-tags
+     Exclude auxiliary PrIME tags in output trees and suppress creation of files
+     for the mappings. Default: false.
+-p, --leaf-sampling-probability
+     Governs the probability of observing a guest tree leaf. Lineages that fail
+     to be observed will be pruned away similarly to lineages lost during the
+     evolutionary process. Default: 1.0.
+-mpr, --enforce-most-parsimonious-reconciliation
+     Requires the pruned guest tree to not have any duplication vertex that
+     occurs on a host edge other than what a most-parsimonious reconciliation of
+     the pruned guest tree topology would suggest, and that cannot be mistaken
+     for a speciation. Default: false.
+-a, --max-attempts
+     Maximum number of attempts at creating random tree that meets requirements.
+     If not met, no tree is output. Default: 10000.
+-stem, --override-host-stem
+     If set, overrides the stem edge of the host tree by the specified value. If
+     no stem edge is desired, this can be set to 0. Default: Value in host tree.
+-vp, --vertex-prefix
+     Vertex prefix. Default: G.
+-vph, --vertex-prefix-host-map
+     Append host vertex/edge belonging to vertex prefix. Default: true.
+-hybrid, --hybrid-host-graph
+     <post-hyb timespan> <post-hyb dup fact> <post-hyb loss fact>. Assumes that
+     the input host tree is in fact a hybrid DAG. The transfer rate parameter
+     will be ignored (i.e., set to 0). The additional parameters refer to a
+     change-factor applied to the parameters for a limited time following a
+     hybrid speciation.
+

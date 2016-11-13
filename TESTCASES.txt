@@ -1,0 +1,20 @@
+1. Sequence length and DNA/AA
+
+Vary the sequence length and sequence type to determine how it affects inference.
+Lengths: 50, 100, 200, 300, 400, 500, 750, 1000
+
+2. Errors in simple tree
+
+Partly based on the performance in the Test 1, we decide on one single
+sequence length.
+
+In the simple tree, the main clades are single leaves. The 'normal' host tree is
+   H1 = (A, (B, (X, (C, D))))
+where X is first of all moved at different distances between B and (C, D).
+
+The second test is that X is moved to the wrong side of X and (C, D).
+
+3. Errors in medium tree
+
+Here we change the clades to contain two leaves:
+     H2 = ((A1, A2), ((B1, B2), ((X1, X2), ((C1, C2), (D1, D2)))))

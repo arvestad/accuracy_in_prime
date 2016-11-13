@@ -1,0 +1,27 @@
+{
+	"File": "L50_n0.trace",
+	"Total_iterations": 101,
+	"Burnin": 0,
+	"Trees": {
+		"Series_0": [
+			{
+				"Index": 0,
+				"Duplicates": 77,
+				"Posterior probability": 0.76,
+				"Newick": "((G0_0,G6_2),(((G1_3,G2_3),G4_1),(G7_3,(G8_4,G9_4))));"
+			},
+			{
+				"Index": 1,
+				"Duplicates": 22,
+				"Posterior probability": 0.22,
+				"Newick": "(((G0_0,((G1_3,G2_3),G4_1)),G6_2),(G7_3,(G8_4,G9_4)));"
+			},
+			{
+				"Index": 2,
+				"Duplicates": 2,
+				"Posterior probability": 0.02,
+				"Newick": "(((G0_0,G6_2),((G1_3,G2_3),G4_1)),(G7_3,(G8_4,G9_4)));"
+			}
+		]
+	}
+}

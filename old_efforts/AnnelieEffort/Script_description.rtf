@@ -1,0 +1,260 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\froman\fcharset0 TimesNewRomanPSMT;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil Tahoma;}{\f3\fmodern\fcharset0 CourierNewPSMT;}}
+{\*\generator Riched20 6.2.9200}\viewkind4\uc1 
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx7340\tx8000\tx8920\ul\b\f0\fs28\lang29 Script for Example 1\ulnone\b0\fs24\par
+This script uses files from "Example 1" for Delirious\par
+\par
+
+\pard\ri-2300\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx7340\tx8000\tx8720 We need these folders for the resulting files: 1dlrs_start, 2vmcmc_start, 3GTG, 4GTG_BR, 5sequences, 6dlrs_true, 7dlrs_false, 8vmcmc_true and 9vmcmc_false\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx7340\tx8000\tx8920\par
+And these programs: jprime-0.3.2.jar, jprime-0.0.1-SNAPSHOT.jar, path_2.2 and Seq_Gen.v1.3.3\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
+\b 1.  JPrIME-Delirious\b0\par
+\par
+Input:\par
+Species tree: dlrs_example_1.stree\par
+Sequence file dlrs_example_1.fa\par
+Map file: dlrs_example_1.map\par
+\par
+
+\pard\ri-2400\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\b java -Xms1024m -Xmx4096m -jar jprime-0.3.2.jar Delirious -o 1dlrs_start/dlrs_start.mcmc -i 1000000 -t 200 -lout -sm JTT dlrs_example_1.stree.txt dlrs_example_1.fa.txt dlrs_example_1.map.txt\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
+\b0 Output:\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx5900\tx6236\tx6803 dlrs_start.mcmc\par
+\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
+\b 2. VMCMC\b0\par
+\par
+Input:\par
+
+\pard\ri-2340\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 dlrs_start.mcmc\par
+\par
+1. Check if convergence with Gelman-rubin\par
+
+\pard\ri-2160\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\i FOR NOW: If Burn-in lower than X (maybe 200 000?) --> continue, else "Did not converged"\i0\par
+\f1\fs22 java -jar jprime-0.3.2.jar VMCMC -f 1dlrs_start/dlrs_start.mcmc -r TRUE  > gelmanrubin.txt\par
+perl convergence.txt\par
+rm gelmanrubin.txt\par
+\b\f0\fs24\par
+\b0 2. Get burnin-values with ESS\par
+\i FOR NOW: Save burnin value for DuplicationRate, LossRate and EdgeRateMean in a textfile, extract the maximum burnin value and save it as $burnin\i0\par
+\f1\fs22 java -jar jprime-0.3.2.jar VMCMC -f 1dlrs_start/dlrs_start.mcmc -e TRUE > burninfile.txt\par
+perl get_burnin.txt\par
+burnin=`grep "^[0-9]" burnin.txt`\par
+rm burninvalues.txt burnin.txt burninfile.txt\par
+\f0\fs24\par
+3. Run VMCMC with the burnin-value and save into a textile\par
+\f1\fs22 java -jar jprime-0.3.2.jar VMCMC -f 1dlrs_start/dlrs_start.mcmc -s TRUE -b $burnin > 2vmcmc_start/vmcmc_start.txt\f0\fs24\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
+\b\i\fs22\par
+\i0\fs24 3. Get mu, lambda and theta\b0\par
+\par
+
+\pard\ri-2300\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\f1\fs22 factor=`grep "Host tree rescaling factor:" 1dlrs_start/dlrs_start.mcmc.info`\par
+factor=`echo $factor | cut -c31-51`\par
+factor=$(echo "scale=12; 1/$factor" | bc)\par
+\par
+lambda=` grep -A1 DuplicationRate 2vmcmc_start/vmcmc_start.txt | grep "Arithmetic Mean:"` \par
+lambda=`echo $lambda | cut -c18-35` \par
+lambda=$(echo "scale=12; $lambda/$factor" | bc)\par
+mu=` grep -A1 LossRate 2vmcmc_start/vmcmc_start.txt | grep "Arithmetic Mean:"` \par
+mu=`echo $mu | cut -c18-35` \par
+mu=$(echo "scale=12; $mu/$factor" | bc)\par
+theta=` grep -A1 EdgeRateMean 2vmcmc_start/vmcmc_start.txt | grep "Arithmetic Mean:"` \par
+theta=`echo $theta | cut -c18-35`  \par
+theta=$(echo "scale=12; $theta/$factor" | bc)\par
+\b\f0\fs24\par
+\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 4. Run GuestTreeGen in GenPhyloData\b0\par
+\par
+Input:\par
+Species tree: dlrs_example_1.stree\par
+\par
+
+\pard\ri-2520\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7440\f1\fs22 java -jar jprime-0.3.2.jar GuestTreeGen -a 10000000 -vp Taxa dlrs_example_1.stree.txt  $lambda $mu 0 3GTG/GTG\b\f0\fs24\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
+\b0 Output:\par
+GTG.pruned.leafmap containing the mapping gene to species\par
+GTG.pruned.tree containing the tree\par
+GTG.pruned.info containing info about the run\par
+\par
+\b 5. Run BranchRelaxer in GenPhyloData\b0\par
+\par
+Input:\par
+GTG.pruned.tree\par
+\par
+
+\pard\ri-2240\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\f1\fs22 java -jar jprime-0.3.2.jar BranchRelaxer -o 4GTG_BR/GTG_BR.tree 3GTG/GTG.pruned.tree IIDGamma 2.0 $theta\b\f0\fs24\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\b0\par
+Output:\par
+GTG_BR.tree containing more realistic branch lengths\par
+\par
+\b 6. Generate new sequence data with Seq-Gen\b0\par
+\par
+Input:\par
+GTG_BR.tree\par
+\par
+\f1\fs22 ./Seq-Gen.v1.3.3/source/seq-gen -mJTT -l300 < 4GTG_BR/GTG_BR.tree > 5sequences/sequences \b\f0\fs24\par
+\par
+\b0 Change sequences to right format for JPrIME\par
+Remove the first line:\b\par
+\b0\f1\fs22 perl -pi -e '$_ = "" if ( $.== 1);' 5sequences/sequences\par
+\f0\fs24 Add ">" before Taxon-id:\b\par
+\b0\f1\fs22 perl -p -i -e "s/Taxa/>Taxa/g" 5sequences/sequences \par
+\f0\fs24 Remove a few blanks:\b\par
+\b0\f1\fs22 perl -p -i -e "s/\\s+/\\n/g" 5sequences/sequences\par
+\b\f0\fs24\par
+\b0 Output:\par
+sequences with new generated sequences\par
+\par
+\b 7. Run JPrIME-DLRS again on our new sequence data with S and S\'b4\par
+\par
+\b0 1. Get S\'b4\b\par
+- \ul Manually\ulnone\par
+\par
+\b0 2. Run JPrIME\b\par
+\b0\par
+Input:\par
+The true species tree: dlrs_example_1.stree\par
+The false species trees: false_1.stree, .., false_n.stree \par
+MSA file: sequences\par
+Map tree: GTG.pruned.leafmap\par
+\b\par
+
+\pard\ri-2340\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\b0\f1\fs22 java -Xms1024m -Xmx4096m -jar jprime-0.3.2.jar Delirious -o 6dlrs_true/dlrs_true.mcmc -i 1000000 -t 200 -lout -sm JTT dlrs_example_1.stree.txt 5sequences/sequences 3GTG/GTG.pruned.leafmap\b\f0\fs24\par
+\par
+\b0 For-loop for all the false-trees 1,\'85,n: (this is for the first one)\par
+\par
+\f1\fs22 for i in \{1..2\}\par
+do\par
+
+\pard\ri-2240\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 java -Xms1024m -Xmx4096m -jar jprime-0.3.2.jar Delirious -o 7dlrs_false/dlrs_false_$i.mcmc -i 1000000 -t 200 -lout -sm JTT false_$i.stree.txt 5sequences/sequences 3GTG/GTG.pruned.leafmap\par
+done\par
+\b\f0\fs28\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\fs24\par
+\b0 Output:\par
+dlrs_true.mcmc for the true tree\par
+dlrs_false_1.mcmc, .., dlrs_false_1.mcmc for the false species trees\par
+\par
+\b 8. Run VMCMC\b0\par
+\par
+Input:\f2\line\f0 dlrs_true.mcmc for the true tree\par
+dlrs_false_1.mcmc, .., dlrs_false_1.mcmc for the false species trees\par
+\par
+\ul EXAMPLE WITH TRUE-TREE: \ulnone\par
+\par
+
+\pard\ri-2340\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 1. Check if convergence with German-rubin\par
+
+\pard\ri-2160\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\i FOR NOW: If Burn-in lower than X (maybe 20 000?) --> continue, else "Did not converged"\i0\par
+\f1\fs22 java -jar jprime-0.3.2.jar VMCMC -f 6dlrs_true/dlrs_true.mcmc -r TRUE >gelmanrubin.txt\par
+perl convergence.txt\par
+rm gelmanrubin.txt\par
+\b\f0\fs24\par
+\b0 2. Get burnin-values with ESS\par
+\i FOR NOW: Save burnin value for DuplicationRate, LossRate and EdgeRateMean in a textfile, extract the maximum burnin value and save it as $burnin\i0\par
+\f1\fs22 java -jar jprime-0.3.2.jar VMCMC -f 6dlrs_true/dlrs_true.mcmc -e TRUE > burninfile.txt\par
+perl get_burnin.txt\par
+burnin=`grep "^[0-9]" burnin.txt`\par
+rm burninvalues.txt burnin.txt burninfile.txt\par
+\f0\fs24\par
+3. Run VMCMC with the burnin-value and save trees and probabilities into a textfile\par
+
+\pard\f1\fs22 java -jar jprime-0.0.1-SNAPSHOT.jar VMCMC -f 6dlrs_true/dlrs_true.mcmc -mt -b $burnin > 8vmcmc_true/vmcmc_true.txt \b\f0\fs24\par
+\par
+\ul FOR FALSE TREES\ulnone\par
+\par
+\b0 The same with dlrs_false_1.mcmc, \'85, false_n.mcmc in a for-loop\par
+
+\pard\ri-2160\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 input: 7dlrs_true/dlrs_false_1.mcmc, \'85, 7dlrs_true/dlrs_false_n.mcmc\par
+\b\par
+\b0\f1\fs22 for i in \{1..2\}\par
+do\par
+java -jar jprime-0.3.2.jar VMCMC -f 7dlrs_false/dlrs_false_$i.mcmc -r TRUE >gelmanrubin.txt\par
+perl convergence.txt\par
+rm gelmanrubin.txt\par
+done\par
+\b\f0\fs24\par
+\b0\f1\fs22 for i in \{1..2\}\par
+do\par
+java -jar jprime-0.3.2.jar VMCMC -f 7dlrs_false/dlrs_false_$i.mcmc -e TRUE > burninfile.txt\par
+perl get_burnin.txt\par
+burnin=`grep "^[0-9]" burnin.txt`\par
+rm burninvalues.txt burnin.txt burninfile.txt\par
+
+\pard java -jar jprime-0.0.1-SNAPSHOT.jar VMCMC -f 7dlrs_false/dlrs_false_$i.mcmc -mt -b $burnin > 9vmcmc_false/vmcmc_false_$i.txt \par
+done\par
+
+\pard\ri-2400\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\f3\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\f0\fs24 Output:\f2\line\f0 vmcmc_true.txt for the true tree\par
+
+\pard\ri-2160\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 9vmcmc_false/vmcmc_false_1.txt, \'85,  9vmcmc_false/vmcmc_false_n.txt \b\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
+9. Analysis of result\par
+\par
+\b0 1. Extract MAP-trees and probabilities to separate files\par
+\par
+2. Extract MAP-trees\par
+\par
+3. Extract probability distribution (probabilities for the same tree)\par
+If tree is missing: take 0 for the missing one?\par
+\par
+\f1\fs22 perl extract_all.txt\b\f0\fs24\par
+\par
+\b0 output:\b\par
+\b0 true_prob_trees.txt\par
+false_prob_trees_1, .., false_prob_trees_n.\par
+true_MAP.nexus\par
+false_MAP_1.nexus, \'85, false_MAP_n.nexus\par
+probdistr_1, \'85, probdistr_n\b\par
+\par
+\par
+a. comparison between trees G*, G and G'\b0\par
+\par
+1. Robinson-Foulds distance\par
+\par
+Input: GTG_BR.tree, false_maptree, true_maptree\b\par
+\par
+\b0\f1\fs22 python ./path-2.2/difference_GTG_true_false.py\par
+python ./path-2.2/difference_true_false.py\par
+mv 10analysis/true_MAP.newick.sdiff 10analysis/true_false.newick.sdiff\par
+cp 4GTG_BR/GTG_BR.tree 4GTG_BR/GTG_BR.newick\par
+python ./path-2.2/difference_true_GTG.py\par
+\b\f0\fs24\par
+\b0 Output:\par
+GTG_Br.tree.sdiff with GTG_BR.tree as the comparison tree\par
+true_false.newick.sdiff compares the true MAP tree with the false MAP tree\par
+true_MAP.newick.sdiff compares the true MAP tree with GTG_BR.tree\b\par
+\par
+b. comparison between posterior probabilities-distribution\par
+\b0 using Kullback-leibler divergence and measure the variational distance\par
+\par
+First: Replace all "," with "." :\par
+
+\pard\ri-2160\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\f1\fs22 for i in \{1..2\}\par
+do\par
+
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 perl -p -i -e "s/,/./g" 10analysis/probdistr_$i\par
+done\par
+\f0\fs24\par
+Input:\par
+probdistr_1,.., probdistr_n (files with probabilities for all trees)\par
+\par
+\f1\fs22 perl analysis.txt\f0\fs24\par
+\b\par
+\par
+\par
+\par
+}
+ 
