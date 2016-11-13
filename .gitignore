@@ -1,2 +1,5 @@
 *~
 
+\.snakemake
+java
+*.pdf
