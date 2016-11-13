@@ -1,0 +1,113 @@
+import glob
+import re
+
+SEQ_SETS = glob.glob('sim_data/*.phylip')
+DATA_SETS = range(10)
+#SEQ_LENGTHS=[50, 100, 200, 300, 400, 500]
+SEQ_LENGTHS=[50, 100]
+
+gamma_k = 2
+gamma_theta = 0.5
+
+rule all:
+   input:
+      "figures/rf_summary.pdf",
+      "figures/rfm_summary_with_title.pdf"
+
+rule gen_guest_tree:
+   params: prefix="sim_data/{len_n_num}"
+   output: "sim_data/{len_n_num}.pruned.tree", "sim_data/{len_n_num}.pruned.leafmap"
+   shell: JPRIME + " GuestTreeGen -minper 1 -max 20 " + S + " 0.5 0.5 0.5 {params.prefix}"
+
+rule relax_branches1:
+     input: "sim_data/{prefix}.pruned.tree"
+     output: "sim_data/{prefix}.relaxed.tree"
+     shell: JPRIME + " BranchRelaxer {input} IIDGamma {gamma_k} {gamma_theta} -o {output}"
+
+rule relax_branches2:
+     input: "sim_data/{prefix}.pruned.tree"
+     output: "sim_data/{prefix}.relaxed_aux.tree"
+     shell: JPRIME + " BranchRelaxer {input} IIDGamma {gamma_k} {gamma_theta} -o {output} -x"
+     # Include auxilliary information (JPrIME format) in the tree
+
+rule seq_gen_phylip:
+     input: "sim_data/L{length}_{num}.relaxed.tree"
+     output: temp("sim_data/L{length}_{num}.phylip")
+     params: l="{length}"
+     shell: "seq-gen -mHKY -l {params.l} < {input} > {output}"
+
+rule phylip2fasta:
+     input: "sim_data/{prefix}.phylip"
+     output: "sim_data/{prefix}.fa"
+     shell: "phylip2fasta {input} > {output}"
+
+
+rule run_jprime:
+   input:
+      S,
+      "sim_data/{prefix}.fa",
+      "sim_data/{prefix}.pruned.leafmap"
+   output:
+      "traces/{prefix}.trace"
+   shell:
+      "jprime Delirious -sm JTT --iterations {ITERATIONS} --thinning {THINNING} --outfile {output} {input}"
+
+rule run_vmcmc:
+     input: 'traces/{prefix}.trace'
+     output: 'traces/{prefix}_map.json'
+     shell: VMCMC + ' -b -1 -m {input} > {output}'
+
+rule get_map_tree:
+     input:	'traces/{prefix}_map.json'
+     output:	'traces/{prefix}_map.tree'
+     shell: GETMAPTREE + ' {input} > {output}'
+
+rule get_posterior:
+     input:	'traces/{prefix}.trace'
+     output:	'traces/{prefix}_posterior.json'
+     shell: VMCMC + ' -b -1 -p {input} > {output}'
+
+rule compare_tree:
+   input:
+      'sim_data/{prefix}.relaxed.tree',
+      'traces/{prefix}_map.tree'
+   output:
+      'assessment/{prefix}_rf.txt'
+   shell:
+      '../../bin/rf {input} > {output}'
+
+rule compare_posterior:
+   input:
+      'sim_data/{prefix}.relaxed.tree',
+      'traces/{prefix}_posterior.json'
+   output:
+      'assessment/{prefix}_rfm.txt'
+   shell:
+      '../../bin/mean_rf {input} > {output}'
+
+
+rule rf_summary_per_length:
+   input: ["assessment/L{length}_n" + str(N) + "_rf.txt" for N in DATA_SETS]
+   output: "assessment/L{length}_rf_summary.txt"
+   shell: "cat {input} > {output}"
+
+rule mean_rf_summary_per_length:
+   input: ["assessment/L{length}_n" + str(N) + "_rfm.txt" for N in DATA_SETS]
+   output: "assessment/L{length}_rfm_summary.txt"
+   shell: "cat {input} > {output}"
+
+
+rule plot_rf_per_length:
+   input: ["assessment/L" + str(L) + "_rf_summary.txt" for L in SEQ_LENGTHS]
+   output:
+      "figures/rf_summary.pdf",
+      "figures/rf_summary_with_title.pdf"
+   shell: BOXPLOTS + " {output[0]} {input} && " + BOXPLOTS + " -title 'MAP Robinson-Foulds' {output[1]} {input}"
+
+rule plot_mean_rf_per_length:
+   input: ["assessment/L" + str(L) + "_rfm_summary.txt" for L in SEQ_LENGTHS]
+   output:
+      "figures/rfm_summary.pdf",
+      "figures/rfm_summary_with_title.pdf"
+   shell: BOXPLOTS + " {output[0]} {input} && " + BOXPLOTS + " -title 'Mean posterior Robinson-Foulds' {output[1]} {input}"
+     
