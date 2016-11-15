@@ -3,8 +3,9 @@
 import argparse
 import sys
 import re
+import matplotlib
+matplotlib.use('PDF')
 import matplotlib.pyplot as plt
-matplotlib.use('Agg')
 
 
 #sys.stderr.write("For some reason, boxplots.py wants to have env3.4 loaded. At least on Lasse's Mac")
