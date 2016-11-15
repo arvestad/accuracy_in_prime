@@ -23,3 +23,22 @@ make_data.sh	Found in src, runs Mehmood's simulation script
 
 * ETE2
 * matplotlib
+
+
+
+# Getting snakemake running on Ubuntu
+
+First follow installation instructions for Snakemake. I created a Conda profile with:
+```
+conda create -n snakemake  -c bioconda  --file requirements.txt
+```
+where `requirements.txt` contained
+```
+python=3.5.1
+snakemake=3.5.5
+```
+
+Then the profile is activated with:
+```
+source activate snakemake
+```
