@@ -50,7 +50,7 @@ rule run_jprime:
    output:
       "traces/{prefix}.trace"
    shell:
-      "jprime Delirious -sm JTT --iterations {ITERATIONS} --thinning {THINNING} --outfile {output} {input}"
+      "jprime Delirious -sm JC69 --iterations {ITERATIONS} --thinning {THINNING} --outfile {output} {input}"
 
 rule run_vmcmc:
      input: 'traces/{prefix}.trace'
