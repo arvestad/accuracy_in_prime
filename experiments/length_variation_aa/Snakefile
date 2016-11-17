@@ -34,7 +34,7 @@ rule seq_gen_phylip:
      input: "sim_data/L{length}_{num}.relaxed.tree"
      output: temp("sim_data/L{length}_{num}.phylip")
      params: l="{length}"
-     shell: "seq-gen -mHKY -l {params.l} < {input} > {output}"
+     shell: "seq-gen -mWAG -l {params.l} < {input} > {output}"
 
 rule phylip2fasta:
      input: "sim_data/{prefix}.phylip"
@@ -50,7 +50,7 @@ rule run_jprime:
    output:
       "traces/{prefix}.trace"
    shell:
-      "jprime Delirious -sm JTT --iterations {ITERATIONS} --thinning {THINNING} --outfile {output} {input}"
+      "jprime Delirious -sm WAG --iterations {ITERATIONS} --thinning {THINNING} --outfile {output} {input}"
 
 rule run_vmcmc:
      input: 'traces/{prefix}.trace'
