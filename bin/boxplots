@@ -28,7 +28,8 @@ def main():
 
     data = []
     lengths = extract_lengths(args.datafiles)
-
+    n_data_points = 0
+    
     try:
         for f in args.datafiles:
             dataset = []
@@ -36,7 +37,8 @@ def main():
                 for line in h:
                     dataset.append(float(line))
             data.append(dataset)
-
+            n_data_points = len(dataset)
+            
     except Exception as e:
         sys.stderr.write("Error when trying to read data:\n")
         sys.stderr.write(str(e))
@@ -44,7 +46,8 @@ def main():
 
     plt.figure()
     if args.title:
-        plt.title(args.title)
+        plt.suptitle(args.title, fontsize=14)
+        plt.title("n = " + str(n_data_points), fontsize=10)
     bp = plt.boxplot(data)
     plt.setp(bp['boxes'], color='black')
     plt.setp(bp['medians'], color='black')
