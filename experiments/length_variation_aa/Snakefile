@@ -109,5 +109,5 @@ rule plot_mean_rf_per_length:
    output:
       "figures/rfm_summary.pdf",
       "figures/rfm_summary_with_title.pdf"
-   shell: BOXPLOTS + " {output[0]} {input} && " + BOXPLOTS + " -title 'Mean posterior Robinson-Foulds' {output[1]} {input}"
+   shell: BOXPLOTS + " {output[0]} {input} && " + BOXPLOTS + " -title 'Mean posterior Robinson-Foulds (AA)' {output[1]} {input}"
      
