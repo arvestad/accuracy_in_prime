@@ -42,3 +42,17 @@ Then the profile is activated with:
 ```
 source activate snakemake
 ```
+
+
+# Notes
+
+## 2016-11-21
+
+The figures in expereiments/length_variation*/figures/ did not look at
+all what I had expected.  I realised that it was because I had
+simulated with LGT! Same rate as duplications. Trying again. Running
+both AA and DNA simulations. I should however probably consider to simulate with higher duplication rate. The trees were a bit on the small side in the first experiment. Actually, I should put together a boxplot for tree sizes.
+
+I also added a results directory. It will contain subdirectories named after dates and will collect the figures (and more?) as they are produced. Cannot really add traces though.
+
+Should I consider compressing the traces?
