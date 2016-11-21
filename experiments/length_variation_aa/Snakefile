@@ -3,8 +3,8 @@ import re
 
 SEQ_SETS = glob.glob('sim_data/*.phylip')
 DATA_SETS = range(10)
-#SEQ_LENGTHS=[50, 100, 200, 300, 400, 500]
-SEQ_LENGTHS=[50, 100]
+SEQ_LENGTHS=[25, 50, 100, 200, 300, 400, 500]
+#SEQ_LENGTHS=[50, 100]
 
 gamma_k = 2
 gamma_theta = 0.5
@@ -17,7 +17,7 @@ rule all:
 rule gen_guest_tree:
    params: prefix="sim_data/{len_n_num}"
    output: "sim_data/{len_n_num}.pruned.tree", "sim_data/{len_n_num}.pruned.leafmap"
-   shell: JPRIME + " GuestTreeGen -minper 1 -max 20 " + S + " 0.5 0.5 0.5 {params.prefix}"
+   shell: JPRIME + " GuestTreeGen -minper 1 -max 20 " + S + " 0.5 0.5 0.0 {params.prefix}"
 
 rule relax_branches1:
      input: "sim_data/{prefix}.pruned.tree"

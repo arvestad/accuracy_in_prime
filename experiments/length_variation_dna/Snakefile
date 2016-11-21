@@ -17,7 +17,7 @@ rule all:
 rule gen_guest_tree:
    params: prefix="sim_data/{len_n_num}"
    output: "sim_data/{len_n_num}.pruned.tree", "sim_data/{len_n_num}.pruned.leafmap"
-   shell: JPRIME + " GuestTreeGen -minper 1 -max 20 " + S + " 0.5 0.5 0.5 {params.prefix}"
+   shell: JPRIME + " GuestTreeGen -minper 1 -max 20 " + S + " 0.5 0.5 0.0 {params.prefix}"
 
 rule relax_branches1:
      input: "sim_data/{prefix}.pruned.tree"
