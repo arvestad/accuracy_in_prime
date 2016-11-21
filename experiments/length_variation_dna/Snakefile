@@ -2,9 +2,9 @@ import glob
 import re
 
 SEQ_SETS = glob.glob('sim_data/*.phylip')
-DATA_SETS = range(10)
-#SEQ_LENGTHS=[50, 100, 200, 300, 400, 500]
-SEQ_LENGTHS=[50, 100]
+DATA_SETS = range(100)
+SEQ_LENGTHS=[50, 100, 200, 300, 400, 500]
+#SEQ_LENGTHS=[50, 100]
 
 gamma_k = 2
 gamma_theta = 0.5

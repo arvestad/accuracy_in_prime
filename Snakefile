@@ -3,8 +3,8 @@ VMCMC="java -jar ../../java/vmcmc.jar"
 GETMAPTREE="../../bin/get_map_tree"
 BOXPLOTS="../../bin/boxplots"
 S = "../../species_trees/H1.newick"
-ITERATIONS="1000"
-THINNING="10"
+ITERATIONS="1000000"
+THINNING="100"
 
 subworkflow download_software:
    snakefile: "download_software.snake"
