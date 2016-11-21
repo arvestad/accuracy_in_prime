@@ -3,8 +3,8 @@
 \.snakemake
 java
 *.pdf
-*/assessment
-assessment/*
+experiments/*/traces/
+experiments/*/assessment/
 experiments/*/assessment/
 experiments/*/figures/
 experiments/*/sim_data/
