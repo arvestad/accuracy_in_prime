@@ -32,7 +32,7 @@ def main():
     plt.figure()
     if args.title:
         plt.title(args.title)
-    bp = plt.bar(sorted_items, heights)
+    bp = plt.bar(sorted_items, heights, color='gray')
     plt.savefig(args.outputfilename)
 
     return 0
