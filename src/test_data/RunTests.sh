@@ -6,3 +6,9 @@ echo -n "Computed: "
 echo "Expected: 0.75*0 + 0.2 * 4 + 0.05 * 2 = 0.9"
 echo
 
+
+
+echo Testing bars.py:
+../bars.py -title "My title" bar_chart < ./tree_sizes.tab && echo Output in bar_chart.pdf
+
+
