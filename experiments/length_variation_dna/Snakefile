@@ -1,10 +1,11 @@
 import glob
 import re
 
-SEQ_SETS = glob.glob('sim_data/*.phylip')
-DATA_SETS = range(100)
-SEQ_LENGTHS=[50, 100, 200, 300, 400, 500]
-#SEQ_LENGTHS=[50, 100]
+configfile: "../common_params.json"
+ITERATIONS=config['n_iterations']
+THINNING=config['thinning']
+DATA_SETS = range(config['n_data_sets'])
+SEQ_LENGTHS=config['seq_lengths']
 
 gamma_k = 2
 gamma_theta = 0.5
@@ -16,8 +17,8 @@ rule all:
 
 rule gen_guest_tree:
    params: prefix="sim_data/{len_n_num}"
-   output: "sim_data/{len_n_num}.pruned.tree", "sim_data/{len_n_num}.pruned.leafmap"
-   shell: JPRIME + " GuestTreeGen -minper 1 -max 20 " + S + " 0.5 0.5 0.0 {params.prefix}"
+   output: "sim_data/{len_n_num}.pruned.tree", "sim_data/{len_n_num}.pruned.leafmap", "sim_data/{len_n_num}.pruned.info"
+   shell: JPRIME + " GuestTreeGen -minper 1 -min 10 -max 20 " + S + " 1.0 1.0 0.0 {params.prefix}"
 
 rule relax_branches1:
      input: "sim_data/{prefix}.pruned.tree"
@@ -31,8 +32,8 @@ rule relax_branches2:
      # Include auxilliary information (JPrIME format) in the tree
 
 rule seq_gen_phylip:
-     input: "sim_data/L{length}_{num}.relaxed.tree"
-     output: temp("sim_data/L{length}_{num}.phylip")
+     input: "sim_data/n{num}.relaxed.tree"
+     output: temp("sim_data/L{length}_n{num}.phylip")
      params: l="{length}"
      shell: "seq-gen -mHKY -l {params.l} < {input} > {output}"
 
@@ -45,10 +46,10 @@ rule phylip2fasta:
 rule run_jprime:
    input:
       S,
-      "sim_data/{prefix}.fa",
-      "sim_data/{prefix}.pruned.leafmap"
+      "sim_data/L{length}_n{num}.fa",
+      "sim_data/n{num}.pruned.leafmap"
    output:
-      "traces/{prefix}.trace"
+      "traces/L{length}_n{num}.trace"
    shell:
       JPRIME + " Delirious -sm JC69 --iterations {ITERATIONS} --thinning {THINNING} --outfile {output} {input}"
 
@@ -69,22 +70,32 @@ rule get_posterior:
 
 rule compare_tree:
    input:
-      'sim_data/{prefix}.relaxed.tree',
-      'traces/{prefix}_map.tree'
+      'sim_data/n{num}.relaxed.tree',
+      'traces/L{length}_n{num}_map.tree'
    output:
-      'assessment/{prefix}_rf.txt'
+      'assessment/L{length}_n{num}_rf.txt'
    shell:
       '../../bin/rf {input} > {output}'
 
 rule compare_posterior:
    input:
-      'sim_data/{prefix}.relaxed.tree',
-      'traces/{prefix}_posterior.json'
+      'sim_data/n{num}.relaxed.tree',
+      'traces/L{length}_n{num}_posterior.json'
    output:
-      'assessment/{prefix}_rfm.txt'
+      'assessment/L{length}_n{num}_rfm.txt'
    shell:
       '../../bin/mean_rf {input} > {output}'
 
+
+rule tree_sizes:
+   input: ["sim_data/n" + str(N) + ".pruned.info" for N in DATA_SETS]
+   output: temp("tree_sizes.tab")
+   shell: "grep leaves {input} > {output}"
+
+rule tree_size_bar_chart:
+   input: "tree_sizes.tab"
+   output: "figures/tree_sizes.pdf"
+   shell: "cat {input} | cut -f 3 -d:  | sort -n | uniq -c | " + BAR_CHART + "  -title Tree_sizes figures/tree_sizes"
 
 rule rf_summary_per_length:
    input: ["assessment/L{length}_n" + str(N) + "_rf.txt" for N in DATA_SETS]
