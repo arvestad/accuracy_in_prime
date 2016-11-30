@@ -2,7 +2,7 @@
 
 ## 2016-11-21
 
-The figures in expereiments/length_variation*/figures/ did not look at
+The figures in `experiments/length_variation*/figures/` did not look at
 all what I had expected.  I realised that it was because I had
 simulated with LGT! Same rate as duplications. Trying again. Running
 both AA and DNA simulations. I should however probably consider to
@@ -39,3 +39,4 @@ in common between experiments.
 * `n_data_sets` -- decides how many gene families are created for each test.
 * `seq_lengths` -- a list containing the lengths that we will try in
    the experiments of how length affects results.
+

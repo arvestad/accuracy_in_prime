@@ -1,26 +1,28 @@
 # Directories
 
-src/	Scripts and other source code. Working dir. When a script is ready (?), it is moved to the bin directory.
-bin/	Finished (?) scripts and programs. 
-java/	Location of JAR files, in particular for VMCMC. I am using am updated version, a prerelease of v1.1 sort-of, which "behaves better".
-species_trees/
+* `src/`	Scripts and other source code. Working dir. When a script is ready (?), it is moved to the bin directory.
+* `bin/`	Finished (?) scripts and programs. 
+* `java/`	Location of JAR files, in particular for VMCMC. I am using am updated version, a prerelease of v1.1 sort-of, which "behaves better".
+* `species_trees/`
 	Location of species trees, duh. The whole range of trees we are interested in will be here.
-experiments/
+* `experiments/`
 	This is were the different test cases are worked on. 
-figures/
-	This is the destination of figures that are created from the results.
-AnnelieEffort/
-	Scripts etc that Annelie put together
-MehmoodSimulationScript/
-	The script Mehmood has used to generate data. It is from his github account, but I am tweaking it to my desire.
+* `results/`
+	This is the destination of figures etc that are created when running experiments. Subdirectories are named with dates.
+* `old_effort`
+	Scripts etc that Annelie and Mehmood have put together. Mehmood's script can also be found in his github account.
+
 
 # Files
 
-Snakefile	The file that runs most of the project
-make_data.sh	Found in src, runs Mehmood's simulation script
+* `Snakefile`
+  The file that runs most of the project
+* `bin/snake_testing`
+  Run a test-configuration of the experiemnts. Smaller dataset and fewer iterations.
 
 # Dependencies
 
+* Snakemake
 * ETE2
 * matplotlib
 
