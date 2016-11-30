@@ -40,3 +40,7 @@ in common between experiments.
 * `seq_lengths` -- a list containing the lengths that we will try in
    the experiments of how length affects results.
 
+
+## 2016-11-30
+
+Added latest figrues to the results directory. 
